@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>PHP| MySQL | Vue.js | Axios => Divni Svijet Kuhanja (pre-alpha)</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+<style>
+
+@keyframes fadein {
+  from {background-color: white;}
+  to {background-color: palevioletred;}
+}
+
+h2 {
+    animation-name: fadein;
+  animation-duration: 4s;
+  background-color: palevioletred;
+}
+
+textarea {
+  width: 100%;
+  height: 150px;
+  padding: 12px 20px;
+  box-sizing: border-box;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+//  background-color: #f8f8f8;
+//  font-size: 16px;
+  resize: none;
+}
+
+body {
+  background-image: url("https://www.w3schools.com/css/gradient_bg.png");
+  background-repeat: repeat-x;
+}
+
+ol {
+  background: #ff9999;
+  padding: 20px;
+}
+
+ul {
+  background: #3399ff;
+  padding: 20px;
+}
+
+ol li {
+  background: #ffe5e5;
+  padding: 5px;
+  margin-left: 35px;
+}
+
+ul li {
+  background: #cce5ff;
+  padding: 5px;
+}
+</style>
+
+</head>
+<body>
+
+<h1>Divni svijet kuhanja</h1>
+<div id='vueapp'>
+<h2>Chat:</h2>
+<table border='1' width='100%' style='border-collapse: collapse;'>
+   <tr>
+     <th style="width:20%">id</th>
+     <th>poruka</th>
+     
+
+   </tr>
+
+   <tr v-for='contact in contacts'>
+     <td>{{ contact.id }}</td>
+     <td>{{ contact.name }}</td>
+     
+   </tr>
+ </table>
+
+ 
+ </br>
+
+    <form>
+      <label>id</label>
+      <input type="text" name="id" v-model="id">
+      <label>poruka</label>
+      <input type="email" name="name" v-model="name">
+      
+      
+      <input type="button" @click="createContact()" value="Pošalji poruku">
+    </form>
+
+    <hr>
+    <h2>Recepti!</h2>
+
+
+ <ul v-for='recept in recepti'>
+     <li>Autor: {{ recept.id }}</li>
+     <li>Recept: <pre>{{ recept.tekst }}</pre></li>
+     <li>Težina izrade: {{ recept.tezina }}</li>
+     <li>Lajkova: {{ recept.lajkova }}</li>
+     
+   </ul>
+
+<h3> Dodaj svoj recept! </h3>
+    <form>
+      <label>Korisnik</label>
+      <input type="text" name="id2" v-model="id2"><br>
+      <label>Recept</label>
+      <textarea type="tekst" name="tekst" v-model="tekst" ></textarea><br>
+      <label>Težina izrade</label>
+      <input type="tezina" name="tezina" v-model="tezina">
+      
+      
+      
+      <input type="button" @click="createRecept()" value="Pošalji recept">
+    </form>
+<img src="data:image/jpeg;base64,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">
+
+</div>
+
+<script>
+var app = new Vue({
+  el: '#vueapp',
+  data: {
+      id: '',
+      name: '',
+      contacts: [],
+      id2: '',
+      tekst: '',
+      tezina: '',
+      lajkova: 0,
+      recepti: []
+  },
+  mounted: function () {
+    console.log('Vue radi. Koliko dugo, vidjet cemo.');
+    this.getContacts();
+    this.getRecepti();
+  },
+
+  methods: {
+    getContacts: function(){
+        axios.get('add.php')
+        .then(function (response) {
+            console.log(response.data);
+            app.contacts = response.data;
+
+        })
+        .catch(function (error) {
+            console.log(error);
+        });
+    },
+
+    getRecepti: function(){
+        axios.get('add2.php')
+        .then(function (response) {
+            console.log(response.data);
+            app.recepti = response.data;
+
+        })
+        .catch(function (error) {
+            console.log(error);
+        });
+    },
+
+    createContact: function(){
+        console.log("Create contact!")
+
+        let formData = new FormData();
+        console.log("name:", this.name)
+        formData.append('id', this.id)
+        formData.append('name', this.name)
+        
+        var contact = {};
+        formData.forEach(function(value, key){
+            contact[key] = value;
+        });
+
+        axios({
+            method: 'post',
+            url: 'add.php',
+            data: formData,
+            config: { headers: {'Content-Type': 'multipart/form-data' }}
+        })
+        .then(function (response) {
+            //handle success
+            console.log(response)
+            app.contacts.push(contact)
+            app.resetForm();
+        })
+        .catch(function (response) {
+            //handle error
+            console.log(response)
+        });
+    },
+    resetForm: function(){
+        this.name = '';
+        this.id = '';
+        this.id2='';
+        this.tekst='';
+        this.tezina='';
+        this.lajkova='0'
+    },
+
+    createRecept: function(){
+        console.log("Create recept!")
+
+        let formData = new FormData();
+        console.log("recept:", this.tekst)
+        formData.append('id', this.id2)
+        formData.append('tekst', this.tekst)
+        formData.append('tezina', this.tezina)
+        formData.append('lajkova', this.lajkova)
+        
+        var recept = {};
+        formData.forEach(function(value, key){
+            recept[key] = value;
+        });
+
+        axios({
+            method: 'post',
+            url: 'add2.php',
+            data: formData,
+            config: { headers: {'Content-Type': 'multipart/form-data' }}
+        })
+        .then(function (response) {
+            //handle success
+            console.log(response)
+            app.recepti.push(recept)
+            app.resetForm();
+        })
+        .catch(function (response) {
+            //handle error
+            console.log(response)
+        });
+    },
+    resetForm: function(){
+        this.name = '';
+        this.id = '';
+        this.id2='';
+        this.tekst='';
+        this.tezina='';
+        this.lajkova='0'
+        
+    }
+
+  }
+})    
+</script>
+</body>
+</html>    
+
